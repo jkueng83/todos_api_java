@@ -5,10 +5,9 @@ import at.cc.jk.projects.todos.Todos.repositories.TodoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,15 +21,35 @@ public class TodoController {
     private TodoRepository todoRepository;
 
     @GetMapping("/todos")
-    List<Todo> getAllTodos() {
+    public List<Todo> getAllTodos() {
         List<Todo> todos = todoRepository.findAll();
         return todos;
     }
 
     @GetMapping("/todos/{id}")
-    Todo getTodo(@PathVariable("id") Integer id) {
+    public Todo getTodo(@PathVariable("id") Integer id) {
         log.info("get todo by id: {} ", id);
         return todoRepository.getOne(id);
+    }
+
+    @PostMapping(value = "/todos", consumes = "application/json")
+    public ResponseEntity insertTodo(@RequestBody Todo todo) {
+        todoRepository.save(todo);
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/todos/{id}")
+    public ResponseEntity deleteTodo(@PathVariable("id") int id) {
+
+        todoRepository.deleteById(id);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PutMapping(value="/todos" , consumes = "application/json")
+    public ResponseEntity updateTodo( @RequestBody Todo todo ){
+        todoRepository.save(todo);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 }
